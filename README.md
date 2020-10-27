@@ -54,7 +54,7 @@ Requirements:
 
 Install these using `python -m pip install xlrd xlwt zipfile`.
 
-Use this by putting `generate-feedback.py` in the same folder as an Excel file called `feedback,xlsx` in the correct format, and then running it using `python generate-feedback.py`. 
+Use this by putting `generate-feedback.py` in the same folder as an Excel file called `feedback.xlsx` in the correct format, and then running it using `python generate-feedback.py`. For example, if you download `generate-feedback.py` and `feedback.xlsx` from this repository and run `python generate-feedback.py`, you should see some output generated that will confirm the program works on your system and give you an idea of what it does.
 
 ## Acknowledgements
 
