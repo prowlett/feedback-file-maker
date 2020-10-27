@@ -1,5 +1,7 @@
 # feedback-file-maker
 
+## What is it
+
 Takes a spreadsheet `feedback.xlsx` in the same folder which has a really specific format, and generates from it:
 
 1. A HTML feedback file for each student, named like `fb_username.html`, in a subfolder `feedback` which is created if necessary.
@@ -7,6 +9,8 @@ Takes a spreadsheet `feedback.xlsx` in the same folder which has a really specif
 3. A zip file containing 1 & 2 in the same folder as the Python file.
 
 Item 1. can be used in lots of contexts. Items 2 and 3 are quite specific, possibly only to my context. If you don't need these, you can remove everything in `generate-feedback.py` after `# Bb bit`.
+
+## Spreadsheet format
 
 The spreadsheet format is quite specific. A sample is provided here to demonstrate functionality. I suggest you edit the sample `feedback.xlsx` to make your own feedback file.
 
@@ -38,6 +42,8 @@ The HTML output is generated from columns moving from left to right. Row 1 for c
 - Text in row 1 and `y` in this column for a students includes the text from row 1 as a paragraph on the HTML page.
 - `no` in row 1 skips this column (use it for notes to yourself). In the demo file, this is used to display the grade as a degree class but record it as a number.
 
+## Installation and use
+
 This program is not very resilient to improper input. I mean to fix this when I have time. I have used it to upload an assignment once, but have not done extensive testing.
 
 Requirements:
@@ -48,4 +54,8 @@ Requirements:
 
 Install these using `python -m pip install xlrd xlwt zipfile`.
 
-Acknowledgements: This is based on a VBA tool written by [Mike Robinson](https://maths.shu.ac.uk/mr/) which has been used successfully for many years. The goal of this development is to produce a version that doesn't involve using Windows and has added features to help with Blackboard upload, and to possibly tidy up the HTML output.
+Use this by putting `generate-feedback.py` in the same folder as an Excel file called `feedback,xlsx` in the correct format, and then running it using `python generate-feedback.py`. 
+
+## Acknowledgements
+
+This is based on a VBA tool written by [Mike Robinson](https://maths.shu.ac.uk/mr/) which has been used successfully for many years. The goal of this development is to produce a version that doesn't involve using Windows and has added features to help with Blackboard upload, and to possibly tidy up the HTML output.
