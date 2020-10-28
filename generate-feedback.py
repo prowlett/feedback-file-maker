@@ -10,26 +10,107 @@ def excel_col_to_index_num(col_name):
         col_num += (ord(col_name[len(col_name)-i-1])-64)*26**i
     return col_num-1
 
+def deal_with_it(err, msg):
+    """
+    Prints an error message and quits.
+    """
+    if err == "format":
+        print("Please check the format of feedback.xlsx.",end=" ")
+    elif err == "file":
+        print("Something has gone wrong importing feedback.xlsx.",end=" ")
+    elif err == "student":
+        print("Please correct error in student data.",end=" ")
+    print(msg)
+    import sys
+    sys.exit()
+
+# open file
 fbfile = 'feedback.xlsx'
+try:
+    fbwb = xlrd.open_workbook(fbfile)
+except FileNotFoundError:
+    deal_with_it("file","Check there is a file feedback.xlsx in the same folder as this script.")
+except xlrd.biffh.XLRDError:
+    deal_with_it("format","Something is wrong with the feedback.xlsx file. Please check this file.")
 
-fbwb = xlrd.open_workbook(fbfile)
+# get the two worksheets - doesn't care what they are called, but the order matters
 configsheet = fbwb.sheet_by_index(0)
-fbsheet = fbwb.sheet_by_index(1)
+try:
+    fbsheet = fbwb.sheet_by_index(1)
+except IndexError:
+    deal_with_it("format","Does the file have two sheets - the first for configuration and the second for feedback?")
 
-assignment_info = []
-for i in range(2,10):
-    # Module: assignment_info[0]
-    # Module code: assignment_info[1]
-    # Academic year: assignment_info[2]
-    # Assignment title: assignment_info[3]
-    # Staff: assignment_info[4]
-    # Code from Advanced Assignment tool: assignment_info[5]
-    # Bb file name: assignment_info[6]
-    # Column holding overall marks: assignment_info[7]
-    assignment_info.append(configsheet.cell_value(i,2))
+# checking format - are the first three columns Surname, Forename and Username?
+try:
+    if fbsheet.cell_value(0,0) != "Surname" or fbsheet.cell_value(0,1) != "Forename" or fbsheet.cell_value(0,2) != "Username":
+        raise IndexError
+except IndexError: # either because one of the cells checked is empty or I've thrown my own because they aren't the right column headings
+    deal_with_it("format","Are the first three columns in sheet 2 'Surname', 'Forename' and 'Username' in that order?")
+
+try:
+    assignment_info = []
+    for i in range(2,10):
+
+        # Module (C3): appears on feedback pages: assignment_info[0]
+        # Module code (C4): appears on feedback pages: assignment_info[1]
+        # Academic year (C5): appears on feedback pages: assignment_info[2]
+        # Assignment title (C6): appears on feedback pages: assignment_info[3]
+        # Staff (C7): appears on feedback pages: assignment_info[4]
+        # Code from Advanced Assignment tool (C8): important for Bb! Download from the Advanced Assignment Tool. The spreadsheet top line has a code in cell B1. Copy it here: assignment_info[5]
+        # Bb file name (C9): important for Bb! This is the filename of the spreadsheet you got from the Advanced Assignment Tool: assignment_info[6]
+        # Column holding overall marks (C10): important for Bb! Which column contains the overall marks?: assignment_info[7]
+        assignment_info.append(configsheet.cell_value(i,2))
+except IndexError:
+    deal_with_it("Please check the format of feedback.xlsx. Is the configuration information in sheet 1 in the correct cells?")
 
 grade_col = excel_col_to_index_num(assignment_info[7]) # column that the final grade is in
 
+# check for missing essential data
+error_flag = False
+error_msg = ""
+for i in range(2,fbsheet.nrows):
+    surname_error_flag = False
+    forename_error_flag = False
+    username_error_flag = False
+    grade_error_flag = False
+    if fbsheet.cell_value(i,0) == "": # Surname
+        surname_error_flag = True
+    if fbsheet.cell_value(i,1) == "": # Forename
+        forename_error_flag = True
+    if fbsheet.cell_value(i,2) == "": # Username
+        username_error_flag = True
+    if fbsheet.cell_value(i,grade_col) == "": # grade
+        grade_error_flag = True
+    if surname_error_flag or forename_error_flag or username_error_flag or grade_error_flag:
+        error_flag = True
+        error_msg = "{}\nStudent on row {}: missing".format(error_msg,i+1)
+        if surname_error_flag:
+            error_msg = "{} surname".format(error_msg)
+        if forename_error_flag:
+            error_msg = "{} forename".format(error_msg)
+        if username_error_flag:
+            error_msg = "{} username".format(error_msg)
+        if grade_error_flag:
+            error_msg = "{} grade".format(error_msg)
+if error_flag:
+    deal_with_it("student",error_msg)
+
+# check usernames are unique
+usernames = []
+for i in range(2,fbsheet.nrows):
+    usernames.append(fbsheet.cell_value(i,2))
+if len(usernames) != len(set(usernames)):
+    deal_with_it("student","Please make sure all usernames are unique.")
+
+# cycle through the worksheet processing data into
+# header_info: information about the header row
+# fb_data: feedback data in HTML format
+#    - Text in row 1 and h in this column for a student creates this as a <h2>.
+#    - Text in row 1 and hh in this column for a student creates this as a <h3>.
+#    - "x" in row 1 and text in this column for a student includes this text as a <p>.
+#    - Text in row 1 and y in this column for a students includes the text from row 1 as a <p>.
+#    - "no" in row 1 skips this column (use it for notes to yourself).
+# grade_data: just surname, forename, username and grade
 mode="header"
 header_info = []
 fb_data = []
@@ -71,6 +152,7 @@ for i in range(fbsheet.nrows):
 
 print("{} students imported".format(len(fb_data)))
 
+# create feedback directory if it doesn't exist
 try:
     os.mkdir(os.path.join(os.getcwd(),"feedback"))
 except FileExistsError: # already exists
@@ -78,6 +160,7 @@ except FileExistsError: # already exists
 
 fb_files = []
 
+# create feedback HTML file per student
 for student in fb_data:
     file_loc = "fb_{}.html".format(student[2])
     fb_files.append(file_loc)
@@ -180,26 +263,30 @@ for student in fb_data:
 
 # Bb bit
 
-# xls version
+# xls version - open file for editing
 import xlwt
 wb = xlwt.Workbook()
 worksheet = wb.add_sheet('Sheet 1')
 
-# xlsx version
-# I made this work before I realised Bb wants an xls, not an xlsx
+# xlsx version - open file for editing
+# N.B. I made this work before I realised Bb tool wants an xls, not an xlsx. Leaving it here in case this changes.
 # import xlsxwriter
-# workbook = xlsxwriter.Workbook('grades.xlsx')
+# workbook = xlsxwriter.Workbook('grades.xlsx') # this would need to change to match file_loc bit below
 # worksheet = workbook.add_worksheet()
 
+
+# essential first row
 worksheet.write(0,0,'NB: Do not change or delete the information in this row.')
 worksheet.write(0,1,assignment_info[5])
+
+# column headings
 worksheet.write(1,0,"Username")
 worksheet.write(1,1,"First Name")
 worksheet.write(1,2,"Last Name")
 worksheet.write(1,5,"Grade")
 worksheet.write(1,6,"Feedback")
 
-# Make spreadsheet of grades for Bb
+# Fill in spreadsheet of id info and grades for each student
 for i in range(2,len(grade_data)+2):
     worksheet.write(i,0,grade_data[i-2][2]) # Username
     worksheet.write(i,1,grade_data[i-2][1]) # First Name
@@ -207,7 +294,7 @@ for i in range(2,len(grade_data)+2):
     worksheet.write(i,5,grade_data[i-2][3]) # Grade
     worksheet.write(i,6,"Please see attached file")
 
-# xls
+# xls - output file
 if assignment_info[6][-4:] == ".xls":
     file_loc = assignment_info[6]
 else:
@@ -215,8 +302,10 @@ else:
 wb.save(os.path.join(os.getcwd(),"feedback",file_loc))
 fb_files.append(file_loc)
 
-# xlsx
+# xlsx - finish
 #workbook.close()
+
+# now zip up ./feedback/* into ./feedback.zip
 
 from zipfile import ZipFile
 
