@@ -1,5 +1,11 @@
 # feedback-file-maker
 
+## Just get me going quickly
+
+1. To install the necessary Python packages (or check they are installed): run `python -m pip install xlrd xlwt`.
+2. Get the files - use the 'Code' button above to either clone the repository or download the files `generate-feedback.py` and `feedback.xlsx`.
+3. Go to the folder where those files are on your computer and run `python generate-feedback.py`. This should generate a subfolder `feedback` (containing four student feedback files and a spreadsheet of marks) and a zip file containing the same, using the sample Excel feedback file provided.
+
 ## What is it
 
 Takes a spreadsheet `feedback.xlsx` in the same folder which has a really specific format, and generates from it:
