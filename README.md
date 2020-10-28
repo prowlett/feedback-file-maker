@@ -44,7 +44,7 @@ The HTML output is generated from columns moving from left to right. Row 1 for c
 
 - Text in row 1 and `h` in this column for a student creates this as a main heading on the HTML page.
 - Text in row 1 and `hh` in this column for a student creates this as a sub-heading on the HTML page.
-- "x" in row 1 and text in this column for a student includes this text as a paragraph on the HTML page.
+- `x` in row 1 and text in this column for a student includes this text as a paragraph on the HTML page.
 - Text in row 1 and `y` in this column for a students includes the text from row 1 as a paragraph on the HTML page.
 - `no` in row 1 skips this column (use it for notes to yourself). In the demo file, this is used to display the grade as a degree class but record it as a number.
 
