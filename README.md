@@ -50,7 +50,7 @@ The HTML output is generated from columns moving from left to right. Row 1 for c
 
 ## Installation and use
 
-This program is not very resilient to improper input. I mean to fix this when I have time. I have used it to upload an assignment once, but have not done extensive testing.
+There is some error checking, but the program is not *very* resilient to improper input. I have used it to upload an assignment once, but have not done extensive testing.
 
 Requirements:
 
