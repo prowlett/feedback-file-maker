@@ -148,7 +148,7 @@ fb_files = []
 
 # create feedback Markdown file per student
 for student in fb_data:
-    file_loc = "fb_{}.md".format(student[2])
+    file_loc = "{}_{}.md".format(student[1],student[0])
     fb_files.append(file_loc)
     f = open(os.path.join(os.getcwd(),"feedback",file_loc),'w')
     f.write("""# Feedback: {}\n\n*{}: {}* ({}),  \n{}\n\nStudent: {} {} ({})\n\n""".format(assignment_info[3],assignment_info[1],assignment_info[0],assignment_info[2],assignment_info[4],student[1],student[0],student[2]))
