@@ -48,6 +48,10 @@ The HTML output is generated from columns moving from left to right. Row 1 for c
 - Text in row 1 and `y` in this column for a students includes the text from row 1 as a paragraph on the HTML page.
 - `no` in row 1 skips this column (use it for notes to yourself). In the demo file, this is used to display the grade as a degree class but record it as a number.
 
+## Markdown version
+
+Also included is a version which creates feedback file output in Markdown rather than HTML. This isn't for use with the Blackboard tool and so also this names the files with names rather than usernames.
+
 ## Installation and use
 
 There is some error checking, but the program is not *very* resilient to improper input. I have used it to upload an assignment once, but have not done extensive testing.
@@ -61,6 +65,10 @@ Requirements:
 Install these using `python -m pip install xlrd xlwt zipfile`.
 
 Use this by putting `generate-feedback.py` in the same folder as an Excel file called `feedback.xlsx` in the correct format, and then running it using `python generate-feedback.py`. For example, if you download `generate-feedback.py` and `feedback.xlsx` from this repository and run `python generate-feedback.py`, you should see some output generated that will confirm the program works on your system and give you an idea of what it does.
+
+## Other tools included
+
+`rename-files.py` is a simple script which renames files that contain a student username in the format `[b|c][0-9]+` with extension `ext` to look like `fb_filename.ext` because that is what Blackboard asks for.
 
 ## Acknowledgements
 
